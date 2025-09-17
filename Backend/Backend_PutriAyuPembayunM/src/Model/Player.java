@@ -21,6 +21,11 @@ public class Player implements ShowDetail{
     public UUID getPlayerId() {
         return playerId;
     }
+    public String getUsername() {
+        return username;
+    }
+
+
     public void updateHighScore(int newScore){
         if (newScore > highScore){
             this.highScore = newScore;
@@ -42,4 +47,5 @@ public class Player implements ShowDetail{
         System.out.println("Total Distance: " + totalDistance);
         System.out.println("Created At: " + createdAt);
     }
+
 }
