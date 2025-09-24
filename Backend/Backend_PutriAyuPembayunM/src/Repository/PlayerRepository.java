@@ -1,20 +1,56 @@
 package Repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import Model.Player;
 import java.util.*;
+import java.util.stream.Collectors;
 
+public class PlayerRepository extends BaseRepository<Player, UUID> {
 
-public class PlayerRepository extends BaseRepository <Player, UUID>{
-    public Optional<Player> findByUsername(String username)
-    {
-        return map.stream()
+    @Override
+    public void save(Player player) {
+        UUID id = getId(player);
+        dataMap.put(id, player);
+        allData.add(player);
+    }
+
+    @Override
+    public UUID getId(Player entity) {
+        return entity.getPlayerId();
+    }
+
+    public Optional<Player> findByUsername(String username) {
+        return allData.stream()
                 .filter(player -> player.getUsername().equals(username))
                 .findFirst();
     }
-    public List<Player> findTopPlayersByHighScore (int limit){
-        return 
+
+    public boolean existByUsername(String username) {
+        return allData.stream()
+                .anyMatch(player -> player.getUsername().equals(username));
+    }
+
+    public List<Player> findTopPlayersByHighScore(int limit) {
+        return allData.stream()
+                .sorted((p1, p2) -> Integer.compare(p2.getHighScore(), p1.getHighScore()))
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+    public List<Player> findByHighscoreGreaterThan(int minScore) {
+        return allData.stream()
+                .filter(player -> player.getHighScore() > minScore)
+                .collect(Collectors.toList());
+    }
+    public List<Player> findAllByOrderByTotalCoinDesc(int totalCoins){
+        return allData.stream()
+                .sorted((p1, p2) -> Integer.compare(p2.getTotalCoins(), p1.getTotalCoins()))
+                .limit(totalCoins)
+                .collect(Collectors.toList());
+    }
+    public List<Player> findAllByOrderByTotalDistanceTravelledDesc(int totalDistance){
+        return allData.stream()
+                .sorted((p1, p2) -> Integer.compare(p2.getTotalDistance(), p1.getTotalDistance()))
+                .limit(totalDistance)
+                .collect(Collectors.toList());
     }
 }

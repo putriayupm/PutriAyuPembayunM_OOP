@@ -1,4 +1,5 @@
 package Model;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -10,31 +11,30 @@ public class Player implements ShowDetail{
     private int totalDistance;
     private LocalDateTime createdAt;
 
-    public Player (String username){
-        this.username = username;
+    public Player(String username) {
         this.playerId = UUID.randomUUID();
-        this.createdAt = LocalDateTime.now();
+        this.username = username;
         this.highScore = 0;
-        this.totalDistance = 0;
         this.totalCoins = 0;
+        this.totalDistance = 0;
+        this.createdAt = LocalDateTime.now();
     }
+
     public UUID getPlayerId() {
         return playerId;
     }
-    public String getUsername() {
-        return username;
-    }
 
-
-    public void updateHighScore(int newScore){
-        if (newScore > highScore){
-            this.highScore = newScore;
+    public void updateHighScore(int score) {
+        if (score > this.highScore) {
+            this.highScore = score;
         }
     }
-    public  void addCoins (int coins){
+
+    public void addCoins(int coins) {
         this.totalCoins += coins;
     }
-    public void addDistance (int distance){
+
+    public void addDistance(int distance) {
         this.totalDistance += distance;
     }
 
@@ -46,6 +46,22 @@ public class Player implements ShowDetail{
         System.out.println("Total Coins: " + totalCoins);
         System.out.println("Total Distance: " + totalDistance);
         System.out.println("Created At: " + createdAt);
+        System.out.println();
     }
 
+    public Object getUsername() {
+        return username;
+    }
+
+    public int getHighScore() {
+        return highScore;
+    }
+
+    public int getTotalCoins() {
+        return totalCoins;
+    }
+
+    public int getTotalDistance() {
+        return totalDistance;
+    }
 }
