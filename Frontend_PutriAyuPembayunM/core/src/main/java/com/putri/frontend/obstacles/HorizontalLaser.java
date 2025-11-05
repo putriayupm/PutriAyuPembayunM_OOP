@@ -30,9 +30,4 @@ public class HorizontalLaser extends BaseObtacle{
         return length;
     }
 
-    @Override
-    protected float getRenderHeight() {
-        return WIDTH;
-    }
-
 }

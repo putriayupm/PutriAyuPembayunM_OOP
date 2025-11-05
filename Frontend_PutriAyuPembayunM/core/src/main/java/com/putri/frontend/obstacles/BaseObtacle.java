@@ -44,7 +44,6 @@ public abstract class BaseObtacle {
     protected abstract void updateCollider();
     protected abstract void drawShape(ShapeRenderer shapeRenderer);
     protected abstract float getRenderWidth();
-    protected abstract float  getRenderHeight();
 
     public void setActive(boolean active){
         this.active = active;

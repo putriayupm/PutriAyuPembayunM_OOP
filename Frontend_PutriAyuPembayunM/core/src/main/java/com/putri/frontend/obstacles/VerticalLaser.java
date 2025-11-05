@@ -29,8 +29,4 @@ public class VerticalLaser extends BaseObtacle{
         return WIDTH;
     }
 
-    @Override
-    protected float getRenderHeight() {
-        return length;
-    }
 }
