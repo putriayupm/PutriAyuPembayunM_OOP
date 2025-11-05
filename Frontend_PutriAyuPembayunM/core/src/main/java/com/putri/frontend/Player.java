@@ -1,7 +1,6 @@
 package com.putri.frontend;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Octree;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -15,93 +14,105 @@ public class Player {
     private float width = 64f;
     private float height = 64f;
 
+    // Speed system
     private float baseSpeed = 300f;
     private float distanceTraveled = 0f;
 
     public Player(Vector2 startPosition) {
-        this.position = new Vector2(startPosition);
-        this.velocity = new Vector2(baseSpeed, 0);
-        this.collider = new Rectangle(position.x, position.y, width, height);
+        position = new Vector2(startPosition);
+
+        collider = new Rectangle(
+            position.x,
+            position.y,
+            width,
+            height
+        );
+        velocity = new Vector2(baseSpeed, 0);
     }
 
-    public void  update(float delta, boolean isFlying){
+    public void update(float delta, boolean isFlying) {
         updateDistanceAndSpeed(delta);
-        updatePosition(delta);
         applyGravity(delta);
-
         if (isFlying) {
             fly(delta);
         }
+        updatePosition(delta);
+        updateCollider();
     }
 
+
     private void updateDistanceAndSpeed(float delta) {
+        // Track distance traveled
         distanceTraveled += velocity.x * delta;
     }
 
     private void updatePosition(float delta) {
+        // Move forward constantly
         position.x += velocity.x * delta;
+        // Apply vertical movement (gravity/jetpack)
         position.y += velocity.y * delta;
-
-        collider.setPosition(position.x, position.y);
     }
 
-    private void applyGravity(float delta){
+    private void applyGravity(float delta) {
         velocity.y -= gravity * delta;
+        // Keep forward speed constant with current speed
         velocity.x = baseSpeed;
-        if (velocity.y > maxVerticalSpeed) {
-            velocity.y = maxVerticalSpeed;
-        } else if (velocity.y < -maxVerticalSpeed) {
-            velocity.y = -maxVerticalSpeed;
-        }
 
+        // Clamp vertical velocity to max speed
+        if (velocity.y < -maxVerticalSpeed) {
+            velocity.y = -maxVerticalSpeed;
+        } else if (velocity.y > maxVerticalSpeed) {
+            velocity.y = maxVerticalSpeed;
+        }
     }
 
-    private void fly (float delta){
+    private void fly(float delta) {
         velocity.y += force * delta;
     }
 
-    private void updateColllider(){
+    private void updateCollider() {
         collider.setPosition(position.x, position.y);
     }
 
-    public void checkBoundaries(Ground ground, float ceilingY){
-        if (ground.isColliding(collider)){
+    public void checkBoundaries(Ground ground, float ceilingY) {
+        // Ground collision
+        if (ground.isColliding(collider)) {
             position.y = ground.getTopY();
             velocity.y = 0;
-            updateColllider();
         }
 
-        if (position.y + height > ceilingY){
+        // Ceiling collision
+        if (position.y + height > ceilingY) {
             position.y = ceilingY - height;
             velocity.y = 0;
-            updateColllider();
         }
-
     }
 
-    public void renderShape(ShapeRenderer shapeRenderer){
-        shapeRenderer.setColor (0.2f, 0.6f, 1f, 1f);
-        shapeRenderer.rect (position.x, position.y, width, height);
+    // Debug
+    public void renderShape(ShapeRenderer shapeRenderer) {
+        shapeRenderer.setColor(0f, 1f, 0f, 1f);
+        shapeRenderer.rect(position.x, position.y, width, height);
     }
 
-    public Vector2 getPosition(){
+    // Getters
+    public Vector2 getPosition() {
         return position;
     }
 
-    public float getWidth(){
+    public float getWidth() {
         return width;
     }
 
-    public float getHeight(){
+    public float getHeight() {
         return height;
     }
 
-    public Rectangle getCollider(){
+    public Rectangle getCollider() {
         return collider;
     }
 
-    public float getDistanceTraveled(){
-        return distanceTraveled/10;
+    public float getDistanceTraveled() {
+        return distanceTraveled / 10f;
     }
-
 }
+
