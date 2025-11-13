@@ -43,7 +43,7 @@ public class Player {
         updateDistanceAndSpeed(delta);
         applyGravity(delta);
         if (isFlying) {
-            fly(delta);
+            fly();
         }
         updatePosition(delta);
         updateCollider();
@@ -75,9 +75,10 @@ public class Player {
         }
     }
 
-    public void fly(float delta) {
-        velocity.y += force * delta;
+    public void fly() {
+        velocity.y += force * 0.016f;
     }
+
 
     private void updateCollider() {
         collider.setPosition(position.x, position.y);

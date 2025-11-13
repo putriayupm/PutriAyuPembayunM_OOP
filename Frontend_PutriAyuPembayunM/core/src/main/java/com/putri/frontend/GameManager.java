@@ -1,13 +1,16 @@
 package com.putri.frontend;
 
+import com.putri.frontend.observers.Observer;
+import com.putri.frontend.observers.ScoreManager;
+
 public class GameManager {
     private static GameManager instance;
-
-    private int score;
     private boolean gameActive;
+    private ScoreManager scoreManager;
 
-    private GameManager() {
-        score = 0;
+
+    public GameManager() {
+        scoreManager = new ScoreManager();
         gameActive = false;
     }
 
@@ -19,17 +22,27 @@ public class GameManager {
     }
 
     public void startGame() {
-        score = 0;
+        scoreManager.setScore(0);
         gameActive = true;
         System.out.println("Game Started!");
     }
 
     public void setScore(int newScore) {
         if (gameActive) {
-            score = newScore;
+            scoreManager.setScore(newScore);
         }
     }
 
     // Getters
-    public int getScore() { return score; }
+    public int getScore() {
+        return scoreManager.getScore();
+    }
+
+    public void addObserver(Observer observer) {
+        scoreManager.addObserver(observer);
+    }
+
+    public void removeObserver(Observer observer) {
+        scoreManager.removeObserver(observer);
+    }
 }

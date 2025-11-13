@@ -1,19 +1,18 @@
 package com.putri.frontend.commands;
 
-import com.badlogic.gdx.Gdx;
 import com.putri.frontend.Player;
 
 public class JetpackCommand implements Command{
     private Player player;
-
     public JetpackCommand (Player player){
         this.player = player;
     }
 
     @Override
-    public void execute(){
+    public void execute() {
         if (!player.isDead()) {
-            player.fly(Gdx.graphics.getDeltaTime());
+            player.fly();
         }
     }
+
 }
