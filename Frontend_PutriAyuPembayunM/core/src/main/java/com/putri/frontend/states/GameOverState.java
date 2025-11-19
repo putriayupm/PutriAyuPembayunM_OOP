@@ -3,6 +3,7 @@ package com.putri.frontend.states;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class GameOverState implements GameState{
@@ -22,8 +23,22 @@ public class GameOverState implements GameState{
 
 
     public void render(SpriteBatch batch){
-        font.draw(batch, "GAME OVER", Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2 + 20);
-        font.draw(batch, "Press SPACE to restart", Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2 - 20);
+        batch.begin();
+
+        String textGameOver = "GAME OVER";
+        String textRestart = "Press SPACE to restart";
+
+        GlyphLayout layout = new GlyphLayout(font, textGameOver);
+        float x = (Gdx.graphics.getWidth() - layout.width) / 2;
+        float y = (Gdx.graphics.getHeight() / 2f) + 50;
+        font.draw(batch, textGameOver, x, y);
+
+        layout.setText(font, textRestart);
+        x = (Gdx.graphics.getWidth() - layout.width) / 2;
+        y = (Gdx.graphics.getHeight() / 2f) - 10;
+        font.draw(batch, textRestart, x, y);
+
+        batch.end();
     }
 
     @Override
