@@ -10,7 +10,7 @@ public abstract class ObjectPool<T> {
     protected abstract T createObject();
     protected abstract void resetObject(T object);
 
-    public T obtain(){
+    public T obtain() {
         T object;
         if (available.isEmpty()) {
             object = createObject();
@@ -21,7 +21,7 @@ public abstract class ObjectPool<T> {
         return object;
     }
 
-    public void release(T object){
+    public void release(T object) {
         if (inUse.remove(object)) {
             resetObject(object);
             available.add(object);
@@ -44,3 +44,4 @@ public abstract class ObjectPool<T> {
         return inUse.size();
     }
 }
+

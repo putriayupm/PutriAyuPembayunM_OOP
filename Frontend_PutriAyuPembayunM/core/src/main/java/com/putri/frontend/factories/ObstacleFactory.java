@@ -5,89 +5,100 @@ import com.putri.frontend.obstacles.BaseObtacle;
 
 public class ObstacleFactory {
     public interface ObstacleCreator {
-        BaseObtacle create(float groundTopY, float spawnX, float playerHeight, Random random);
+        BaseObtacle create(float groundTopY, float spawnX, float playerHeight, Random rng);
+
         void release(BaseObtacle obstacle);
+
         void releaseAll();
+
         List<? extends BaseObtacle> getInUse();
+
         boolean supports(BaseObtacle obstacle);
+
         String getName();
     }
 
-    private static class WeightedCreator {
-        ObstacleCreator creator;
-        int weight;
-        WeightedCreator(ObstacleCreator creator, int weight) {
-            this.creator = creator;
-            this.weight = weight;
-        }
-    }
 
-    private final List<WeightedCreator> weightedCreators = new ArrayList<>();
+    private final Map<String, ObstacleCreator> creators = new HashMap<>();
+    private final List<ObstacleCreator> weightedSelection = new ArrayList<>();
     private final Random random = new Random();
-    private int totalWeight = 0;
+
 
     public ObstacleFactory() {
-        register(new VerticalLaserCreator(), 2);
-        register(new HorizontalLaserCreator(), 2);
-        register(new HomingMissileCreator(), 1);
+        // Register all possible creators permanently
+        register(new VerticalLaserCreator());
+        register(new HorizontalLaserCreator());
+        register(new HomingMissileCreator());
     }
-    public void register(ObstacleCreator creator, int weight) {
-        weightedCreators.add(new WeightedCreator(creator, weight));
-        totalWeight += weight;
+
+
+    private void register(ObstacleCreator creator) {
+        creators.put(creator.getName(), creator);
+    }
+
+
+    public void setWeights(Map<String, Integer> weights) {
+        weightedSelection.clear();
+        for (Map.Entry<String, Integer> entry : weights.entrySet()) {
+            String name = entry.getKey();
+            int weight = entry.getValue();
+            if (creators.containsKey(name)) {
+                for (int i = 0; i < weight; i++) {
+                    weightedSelection.add(creators.get(name));
+                }
+            }
+        }
+
+
     }
 
     public BaseObtacle createRandomObstacle(float groundTopY, float spawnX, float playerHeight) {
-        if (weightedCreators.isEmpty()) {
-            throw new IllegalStateException("No obstacle creators registered");
+        if (weightedSelection.isEmpty()) {
+            // Fallback or throw exception if no weights are set
+            return null;
         }
+
         ObstacleCreator creator = selectWeightedCreator();
         return creator.create(groundTopY, spawnX, playerHeight, random);
     }
 
+
     private ObstacleCreator selectWeightedCreator() {
-        int randomValue = random.nextInt(totalWeight);
-        int currentWeight = 0;
-
-        for (WeightedCreator wc : weightedCreators) {
-            currentWeight += wc.weight;
-            if (randomValue < currentWeight) {
-                return wc.creator;
-            }
-        }
-
-        return weightedCreators.get(0).creator;
+        int randomIndex = random.nextInt(weightedSelection.size());
+        return weightedSelection.get(randomIndex);
     }
 
+
     public void releaseObstacle(BaseObtacle obstacle) {
-        for (WeightedCreator wc : weightedCreators) {
-            if (wc.creator.supports(obstacle)) {
-                wc.creator.release(obstacle);
+        for (ObstacleCreator creator : creators.values()) {
+            if (creator.supports(obstacle)) {
+                creator.release(obstacle);
                 return;
             }
         }
     }
 
+
     public void releaseAllObstacles() {
-        for (WeightedCreator wc : weightedCreators) {
-            wc.creator.releaseAll();
+        for (ObstacleCreator creator : creators.values()) {
+            creator.releaseAll();
         }
     }
 
     public List<BaseObtacle> getAllInUseObstacles() {
         List<BaseObtacle> list = new ArrayList<>();
-        for (WeightedCreator wc : weightedCreators) {
-            list.addAll(wc.creator.getInUse());
+        for (ObstacleCreator creator : creators.values()) {
+            list.addAll(creator.getInUse());
         }
-
         return list;
     }
 
-    public List<String> getRegisteredCreatorNames() {
-        List<String> names = new ArrayList<>();
 
-        for (WeightedCreator wc : weightedCreators) {
-            names.add(wc.creator.getName());
-        }
-        return names;
+    public List<String> getRegisteredCreatorNames() {
+        return new ArrayList<>(creators.keySet());
     }
+
+
 }
+
+

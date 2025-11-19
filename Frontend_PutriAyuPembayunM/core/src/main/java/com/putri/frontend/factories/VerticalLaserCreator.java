@@ -1,48 +1,46 @@
 package com.putri.frontend.factories;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.putri.frontend.obstacles.BaseObtacle;
 import com.putri.frontend.obstacles.VerticalLaser;
 import com.putri.frontend.pools.VerticalLaserPool;
-
 import java.util.List;
 import java.util.Random;
 
 public class VerticalLaserCreator implements ObstacleFactory.ObstacleCreator {
-    private final VerticalLaserPool pool = new VerticalLaserPool();
     private static final float MIN_HEIGHT = 100f;
     private static final float MAX_HEIGHT = 300f;
 
+    private final VerticalLaserPool pool = new VerticalLaserPool();
+
     @Override
-    public BaseObtacle create (float groundTopY, float spawnX, float playerHeight, Random rng){
-        float height = rng.nextFloat() * (MAX_HEIGHT - MIN_HEIGHT) + MIN_HEIGHT;
-        return pool.obtain(new Vector2(spawnX, groundTopY), (int)height);
+    public BaseObtacle create(float groundTopY, float spawnX, float playerHeight, Random rng) {
+        float obstacleHeight = MIN_HEIGHT + (rng.nextFloat() * (MAX_HEIGHT - MIN_HEIGHT));
+
+        float minY = groundTopY + playerHeight;
+        float maxY = Gdx.graphics.getHeight() - obstacleHeight - playerHeight;
+        if (maxY < minY) maxY = minY;
+        float randomY = minY + rng.nextFloat() * Math.max(0, maxY - minY);
+
+        return pool.obtain(new Vector2(spawnX, randomY), (int) obstacleHeight);
     }
 
     @Override
     public void release(BaseObtacle obstacle) {
-        if (obstacle instanceof VerticalLaser) {
-            pool.release((VerticalLaser) obstacle);
-        }
+        if (obstacle instanceof VerticalLaser) pool.release((VerticalLaser) obstacle);
     }
 
     @Override
-    public void releaseAll() {
-        pool.releaseAll();
-    }
+    public void releaseAll() { pool.releaseAll(); }
 
     @Override
-    public List<VerticalLaser> getInUse() {
-        return pool.getInUse();
-    }
+    public List<VerticalLaser> getInUse() { return pool.getInUse(); }
 
     @Override
-    public boolean supports(BaseObtacle obstacle) {
-        return obstacle instanceof VerticalLaser;
-    }
+    public boolean supports(BaseObtacle obstacle) { return obstacle instanceof VerticalLaser; }
 
     @Override
-    public String getName() {
-        return "VerticalLaser";
-    }
+    public String getName() { return "VerticalLaser"; }
 }
+

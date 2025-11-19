@@ -3,18 +3,18 @@ package com.putri.frontend.pools;
 import com.badlogic.gdx.math.Vector2;
 import com.putri.frontend.obstacles.HomingMissile;
 
+public class HomingMissilePool extends ObjectPool<HomingMissile> {
 
-public class HomingMissilePool extends ObjectPool<HomingMissile>{
     @Override
-    protected HomingMissile createObject(){
-        return new HomingMissile(new Vector2(0,0));
+    protected HomingMissile createObject() {
+        return new HomingMissile(new Vector2());
     }
 
     @Override
-    protected void resetObject(HomingMissile laser){
-        laser.setPosition(0, 0);
-        laser.setTarget(null);
-        laser.setActive(false);
+    protected void resetObject(HomingMissile missile) {
+        missile.setActive(false);
+        missile.setPosition(0, 0);
+        missile.setTarget(null);
     }
 
     public HomingMissile obtain(Vector2 position) {

@@ -5,50 +5,46 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.putri.frontend.Player;
 
-public class HomingMissile extends BaseObtacle{
+public class HomingMissile extends BaseObtacle {
     private Player target;
     private Vector2 velocity;
     private float speed = 200f;
     private float width = 40f;
     private float height = 20f;
 
-    public HomingMissile (Vector2 startPosition){
-        super(startPosition, 0);
-        velocity = new Vector2();
+    public HomingMissile(Vector2 startPosition) {
+        super(startPosition, 20);
+        this.velocity = new Vector2();
     }
 
     @Override
-    public void initialize(Vector2 startPosition, int length){
+    public void initialize(Vector2 startPosition, int length) {
         super.initialize(startPosition, length);
-        velocity.set(0, 0);
+        this.velocity.set(0, 0);
     }
 
-    public void setTarget(Player target){
+    public void setTarget(Player target) {
         this.target = target;
     }
 
     public boolean isTargetingPlayer() {
-        if (target == null) {
-            return false;
-        }
-        float targetPosX = target.getPosition().x + target.getWidth() / 2f;
-        float missilePosX = position.x + width / 2f;
-        return missilePosX <= targetPosX;
+        if (target == null) return false;
+        float playerCenterX = target.getPosition().x + target.getWidth() / 2f;
+        float missileCenterX = position.x + width / 2f;
+        return playerCenterX <= missileCenterX;
     }
 
     public void update(float delta) {
-        if (target != null && active) {
-            if (isTargetingPlayer()) {
-                Vector2 targetPosition = target.getPosition();
+        if (target == null || !active) return;
 
-                velocity.set(targetPosition).sub(position).nor().scl(speed);
-
-                position.x += velocity.x * delta;
-                position.y += velocity.y * delta;
-
-                updateCollider();
-            }
+        if (isTargetingPlayer()) {
+            Vector2 targetPosition = target.getPosition(); // Ambil Posisi Player
+            velocity.set(targetPosition).sub(position).nor().scl(speed); // Mengatur velocity untuk mendekati player
         }
+
+        // Always move with current velocity
+        position.add(velocity.x * delta, velocity.y * delta);
+        updateCollider();
     }
 
     @Override
@@ -62,7 +58,7 @@ public class HomingMissile extends BaseObtacle{
     }
 
     @Override
-    public float getRenderWidth() {
+    protected float getRenderWidth() {
         return width;
     }
 }

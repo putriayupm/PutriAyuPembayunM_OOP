@@ -14,17 +14,17 @@ public class Player {
     private float width = 64f;
     private float height = 64f;
 
-    private Vector2 startPosition;
-    private boolean isDead;
-
     // Speed system
     private float baseSpeed = 300f;
     private float distanceTraveled = 0f;
 
+    // Death system
+    private boolean isDead = false;
+    private Vector2 startPosition;
+
     public Player(Vector2 startPosition) {
+        this.startPosition = new Vector2(startPosition);
         position = new Vector2(startPosition);
-        startPosition = new Vector2(100, 300);
-        velocity = new Vector2();
 
         collider = new Rectangle(
             position.x,
@@ -36,16 +36,14 @@ public class Player {
     }
 
     public void update(float delta, boolean isFlying) {
-        if (isDead) {
-            return;
+        if (!isDead) {
+            updateDistanceAndSpeed(delta);
+            applyGravity(delta);
+            if (isFlying) {
+                fly(delta);
+            }
+            updatePosition(delta);
         }
-
-        updateDistanceAndSpeed(delta);
-        applyGravity(delta);
-        if (isFlying) {
-            fly();
-        }
-        updatePosition(delta);
         updateCollider();
     }
 
@@ -75,10 +73,11 @@ public class Player {
         }
     }
 
-    public void fly() {
-        velocity.y += force * 0.016f;
+    private void fly(float delta) {
+        if (!isDead) {
+            velocity.y += force * delta;
+        }
     }
-
 
     private void updateCollider() {
         collider.setPosition(position.x, position.y);
@@ -104,6 +103,25 @@ public class Player {
         shapeRenderer.rect(position.x, position.y, width, height);
     }
 
+    // Public method for command pattern
+    public void fly() {
+        if (!isDead) {
+            velocity.y += force * 1/60f; // Using a standard delta time
+        }
+    }
+    public void die() {
+        isDead = true;
+        velocity.x = 0;
+        velocity.y = 0;
+    }
+
+    public void reset() {
+        isDead = false;
+        position.set(startPosition);
+        velocity.set(baseSpeed, 0);
+        distanceTraveled = 0f;
+    }
+
     // Getters
     public Vector2 getPosition() {
         return position;
@@ -125,26 +143,7 @@ public class Player {
         return distanceTraveled / 10f;
     }
 
-    public void die() {
-        isDead = true;
-        velocity.set(0, 0);
-    }
-
-    public void reset() {
-        isDead = false;
-
-        if (position == null) position = new Vector2();
-        if (startPosition == null) startPosition = new Vector2(100, 300);
-        if (velocity == null) velocity = new Vector2();
-
-        position.set(startPosition);
-        velocity.set(0, 0);
-        distanceTraveled = 0f;
-    }
-
     public boolean isDead() {
         return isDead;
     }
-
 }
-
