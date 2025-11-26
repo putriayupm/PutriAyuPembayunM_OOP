@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.putri.frontend.states.GameStateManager;
+import com.putri.frontend.states.MenuState;
 import com.putri.frontend.states.PlayingState;
 
 public class Main extends Game {
@@ -16,7 +17,7 @@ public class Main extends Game {
     public void create() {
         spriteBatch = new SpriteBatch();
         gsm = new GameStateManager();
-        gsm.push(new PlayingState(gsm));
+        gsm.push(new MenuState(gsm));
     }
 
 
@@ -31,8 +32,7 @@ public class Main extends Game {
     @Override
     public void dispose() {
         super.dispose();
-        gsm.pop(); // Dispose the current state
-        spriteBatch.dispose();
+        if (spriteBatch != null) spriteBatch.dispose();
     }
 }
 

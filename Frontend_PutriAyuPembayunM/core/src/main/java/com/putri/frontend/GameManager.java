@@ -1,4 +1,7 @@
 package com.putri.frontend;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 import com.putri.frontend.observers.ScoreManager;
 import com.putri.frontend.services.BackendService;
 
@@ -9,13 +12,15 @@ public class GameManager {
     private boolean gameActive;
 
     private BackendService backendService;
-    private String currentPlayerId;
-    private int coinsCollected;
+    private String currentPlayerId = null;
+    private int coinsCollected = 0;
+
 
     private GameManager() {
         scoreManager = new ScoreManager();
         gameActive = false;
         backendService = new BackendService();
+        coinsCollected = 0;
     }
 
     public static GameManager getInstance() {
@@ -26,9 +31,10 @@ public class GameManager {
     }
 
     public void startGame() {
+        coinsCollected = 0;
         scoreManager.setScore(0);
         gameActive = true;
-        System.out.println("Game Started!");
+        Gdx.app.log("GameManager", "Game Started!");
     }
 
     public void setScore(int newScore) {
@@ -49,33 +55,59 @@ public class GameManager {
         scoreManager.removeObserver(observer);
     }
 
-    public void registerPlayer(String username){
-        backendService.createPlayer(String username, new BackendService.RequestCallback() {
+    public void registerPlayer(String username) {
+        backendService.createPlayer(username, new BackendService.RequestCallback() {
             @Override
-            public void onSuccess(String response;
-            response) {
-
+            public void onSuccess(String response) {
+                try {
+                    JsonValue json = new JsonReader().parse(response);
+                    currentPlayerId = json.getString("playerId");
+                    Gdx.app.log("GameManager", "Player Registered ID: " + currentPlayerId);
+                } catch (Exception e) {
+                    Gdx.app.error("GameManager", "Parsing error", e);
+                }
             }
 
             @Override
             public void onError(String error) {
-
+                Gdx.app.error("GameManager", "Registration Failed: " + error);
             }
         });
     }
 
-    public void endGame(){
+    public void endGame() {
+        if (currentPlayerId == null) {
+            Gdx.app.error("GameManager", "Cannot submit score: Player is not registered!");
+            return;
+        }
 
+        int distanceScore = scoreManager.getScore();
+        int finalScore = distanceScore + (coinsCollected * 10);
+
+        backendService.submitScore(currentPlayerId, finalScore, coinsCollected, distanceScore,
+            new BackendService.RequestCallback() {
+
+                @Override
+                public void onSuccess(String response) {
+                    Gdx.app.log("GameManager", "Score submitted successfully: " + response);
+                }
+
+                @Override
+                public void onError(String error) {
+                    Gdx.app.error("GameManager", "Score submission failed: " + error);
+                }
+            }
+        );
     }
 
-    public void addCoin(){
-
+    public void addCoin() {
+        coinsCollected++;
+        Gdx.app.log("GameManager", "COIN COLLECTED! Total: " + coinsCollected);
     }
 
-    public void setScore(){
-    }
 
-    public void getCoins(){
 
+    public int getCoins() {
+        return coinsCollected;
     }
 }

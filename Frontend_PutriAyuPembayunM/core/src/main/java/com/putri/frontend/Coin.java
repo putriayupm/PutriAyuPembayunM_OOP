@@ -14,12 +14,17 @@ public class Coin {
     private float bobSpeed;
 
     public Coin (Vector2 startPosition){
-        this.collider = new Rectangle();
+        this.position = new Vector2(startPosition);
+        this.collider = new Rectangle(position.x - radius,position.y - radius,radius * 2, radius * 2);
+        this.active = true;
+        this.bobOffset = 0f;
+        this.bobSpeed = 3f;
     }
+
 
     public void update(float delta){
         bobOffset = bobSpeed * delta;
-        position.y = bobOffset;
+        collider.setPosition(position.x - radius, position.y - radius + (float)(Math.sin(bobOffset) * 5f));
 
     }
 
@@ -33,5 +38,18 @@ public class Coin {
 
     public boolean isColliding(Rectangle playerCollider){
         return active && collider.overlaps(playerCollider);
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public void setPosition(float x, float y) {
+        this.position.set(x, y);
+        this.collider.setPosition(x - radius, y - radius);
+    }
+
+    public Vector2 getPosition() {
+        return position;
     }
 }
