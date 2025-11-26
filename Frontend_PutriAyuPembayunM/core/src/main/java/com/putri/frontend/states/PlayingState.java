@@ -18,16 +18,15 @@ import com.putri.frontend.factories.ObstacleFactory;
 import com.putri.frontend.observers.ScoreUIObserver;
 import com.putri.frontend.obstacles.BaseObtacle;
 import com.putri.frontend.obstacles.HomingMissile;
-import com.putri.frontend.states.GameOverState;
-import com.putri.frontend.states.GameState;
-import com.putri.frontend.states.GameStateManager;
-import com.putri.frontend.strategies.*;
+import com.putri.frontend.strategies.DifficultyStrategy;
+import com.putri.frontend.strategies.EasyDifficultyStrategy;
+import com.putri.frontend.strategies.HardDifficultyStrategy;
+import com.putri.frontend.strategies.MediumDifficultyStrategy;
 
 public class PlayingState implements GameState {
     private final GameStateManager gsm;
     private final ShapeRenderer shapeRenderer;
     private SpriteBatch spriteBatch;
-
 
     private final Player player;
     private final Ground ground;
@@ -36,16 +35,13 @@ public class PlayingState implements GameState {
     private final ScoreUIObserver scoreUIObserver;
     private final ObstacleFactory obstacleFactory;
 
-
     private float obstacleSpawnTimer;
     private float lastObstacleSpawnX = 0f;
     private static final float SPAWN_AHEAD_DISTANCE = 300f;
     private static final float OBSTACLE_CLUSTER_SPACING = 250f;
 
-
     private final OrthographicCamera camera;
     private final float cameraOffset = 0.2f;
-
 
     private final int screenWidth;
     private final int screenHeight;
@@ -59,29 +55,22 @@ public class PlayingState implements GameState {
         this.screenWidth = Gdx.graphics.getWidth();
         this.screenHeight = Gdx.graphics.getHeight();
 
-
         camera = new OrthographicCamera();
         camera.setToOrtho(false, screenWidth, screenHeight);
-
 
         player = new Player(new Vector2(100, screenHeight / 2f));
         ground = new Ground();
         background = new Background();
 
-
         jetpackCommand = new JetpackCommand(player);
-
 
         scoreUIObserver = new ScoreUIObserver();
         GameManager.getInstance().addObserver(scoreUIObserver);
 
-
         obstacleFactory = new ObstacleFactory();
         setDifficulty(new EasyDifficultyStrategy());
 
-
         obstacleSpawnTimer = 0f;
-
 
         GameManager.getInstance().startGame();
     }
@@ -93,13 +82,12 @@ public class PlayingState implements GameState {
     }
 
     @Override
-    public void update(float delta){
+    public void update(float delta) {
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             jetpackCommand.execute();
         }
 
-
-        if (player.isDead()){
+        if (player.isDead()) {
             gsm.set(new GameOverState(gsm));
             return;
         }
@@ -110,19 +98,17 @@ public class PlayingState implements GameState {
         ground.update(camera.position.x);
         player.checkBoundaries(ground, screenHeight);
 
-
         updateObstacles(delta);
         checkCollisions();
 
-
         int currentScoreMeters = (int) player.getDistanceTraveled();
         GameManager.getInstance().setScore(currentScoreMeters);
-
 
         if (currentScoreMeters > lastLoggedScore) {
             System.out.println("Distance: " + currentScoreMeters + "m");
             lastLoggedScore = currentScoreMeters;
         }
+
         updateDifficulty(currentScoreMeters);
     }
 
@@ -137,15 +123,15 @@ public class PlayingState implements GameState {
     }
 
     @Override
-    public void render(SpriteBatch batch){
-        if (spriteBatch == null){
+    public void render(SpriteBatch batch) {
+        if (spriteBatch == null) {
             spriteBatch = new SpriteBatch();
         }
+
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
         background.render(spriteBatch);
         spriteBatch.end();
-
 
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -155,7 +141,6 @@ public class PlayingState implements GameState {
             obstacle.render(shapeRenderer);
         }
         shapeRenderer.end();
-
 
         scoreUIObserver.render(GameManager.getInstance().getScore());
     }
@@ -169,26 +154,22 @@ public class PlayingState implements GameState {
     private void updateObstacles(float delta) {
         obstacleSpawnTimer += delta;
 
-
         if (obstacleSpawnTimer >= difficultyStrategy.getSpawnInterval()) {
             spawnObstacle();
             obstacleSpawnTimer = 0f;
         }
 
-
         float cameraLeftEdge = camera.position.x - screenWidth / 2f;
 
-
-        for (BaseObtacle obstacle : obstacleFactory.getAllInUseObstacles()){
-            if (obstacle instanceof HomingMissile){
+        for (BaseObtacle obstacle : obstacleFactory.getAllInUseObstacles()) {
+            if (obstacle instanceof HomingMissile) {
                 ((HomingMissile) obstacle).setTarget(player);
                 ((HomingMissile) obstacle).update(delta);
-
             }
+
             if (obstacle.isOffScreenCamera(cameraLeftEdge)) {
                 obstacleFactory.releaseObstacle(obstacle);
             }
-
         }
     }
 
@@ -197,9 +178,7 @@ public class PlayingState implements GameState {
         float spawnAheadOfCamera = cameraRightEdge + SPAWN_AHEAD_DISTANCE;
         float spawnAfterLastObstacle = lastObstacleSpawnX + difficultyStrategy.getMinGap();
 
-
         float baseSpawnX = Math.max(spawnAheadOfCamera, spawnAfterLastObstacle);
-
 
         for (int i = 0; i < difficultyStrategy.getDensity(); i++) {
             float spawnX = baseSpawnX + (i * OBSTACLE_CLUSTER_SPACING);
@@ -219,7 +198,7 @@ public class PlayingState implements GameState {
     }
 
     @Override
-    public void dispose(){
+    public void dispose() {
         shapeRenderer.dispose();
         if (spriteBatch != null) {
             spriteBatch.dispose();
@@ -228,6 +207,4 @@ public class PlayingState implements GameState {
         scoreUIObserver.dispose();
         background.dispose();
     }
-
-
 }
