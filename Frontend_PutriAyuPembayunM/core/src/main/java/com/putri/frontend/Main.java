@@ -1,14 +1,13 @@
 package com.putri.frontend;
 
-import com.badlogic.gdx.Game;
+import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.putri.frontend.states.GameStateManager;
 import com.putri.frontend.states.MenuState;
-import com.putri.frontend.states.PlayingState;
 
-public class Main extends Game {
+public class Main extends ApplicationAdapter {
     private GameStateManager gsm;
     private SpriteBatch spriteBatch;
 
@@ -18,6 +17,7 @@ public class Main extends Game {
         spriteBatch = new SpriteBatch();
         gsm = new GameStateManager();
         gsm.push(new MenuState(gsm));
+        Gdx.gl.glClearColor(1, 0, 0, 1);
     }
 
 

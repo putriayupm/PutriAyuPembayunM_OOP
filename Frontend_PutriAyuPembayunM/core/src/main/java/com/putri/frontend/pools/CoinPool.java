@@ -1,27 +1,18 @@
 package com.putri.frontend.pools;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Pool;
 import com.putri.frontend.Coin;
 
-public class CoinPool extends ObjectPool<Coin>{
+public class CoinPool extends Pool<Coin> {
     @Override
-    protected Coin createObject() {
-        return new Coin(new Vector2(0,0));
+    protected Coin newObject() {
+        return new Coin();
     }
 
-    @Override
-    protected void resetObject(Coin coin) {
-        coin.setActive(false);
-
-    }
-
-    public Coin obtain(float x, float y){
+    public Coin obtain(float x, float y) {
         Coin coin = super.obtain();
-        coin.setPosition(x, y);
-        coin.setActive(true);
+        coin.init(x, y);
         return coin;
-
     }
-
-
 }

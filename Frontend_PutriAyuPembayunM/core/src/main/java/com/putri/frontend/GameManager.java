@@ -1,20 +1,22 @@
 package com.putri.frontend;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
+import com.putri.frontend.factories.CoinFactory;
+import com.putri.frontend.observers.Observer;
 import com.putri.frontend.observers.ScoreManager;
 import com.putri.frontend.services.BackendService;
+
 
 public class GameManager {
     private static GameManager instance;
 
     private ScoreManager scoreManager;
     private boolean gameActive;
-
     private BackendService backendService;
-    private String currentPlayerId = null;
-    private int coinsCollected = 0;
-
+    private String currentPlayerId;
+    private int coinsCollected;
 
     private GameManager() {
         scoreManager = new ScoreManager();
@@ -28,31 +30,6 @@ public class GameManager {
             instance = new GameManager();
         }
         return instance;
-    }
-
-    public void startGame() {
-        coinsCollected = 0;
-        scoreManager.setScore(0);
-        gameActive = true;
-        Gdx.app.log("GameManager", "Game Started!");
-    }
-
-    public void setScore(int newScore) {
-        if (gameActive) {
-            scoreManager.setScore(newScore);
-        }
-    }
-
-    // Getters
-    public int getScore() { return scoreManager.getScore(); }
-
-    // Delegate observer methods to ScoreManager
-    public void addObserver(com.putri.frontend.observers.Observer observer) {
-        scoreManager.addObserver(observer);
-    }
-
-    public void removeObserver(com.putri.frontend.observers.Observer observer) {
-        scoreManager.removeObserver(observer);
     }
 
     public void registerPlayer(String username) {
@@ -75,29 +52,34 @@ public class GameManager {
         });
     }
 
+    public void startGame() {
+        coinsCollected = 0;
+        scoreManager.setScore(0);
+        gameActive = true;
+        Gdx.app.log("GameManager", "Game Started!");
+    }
+
     public void endGame() {
+        gameActive = false;
         if (currentPlayerId == null) {
-            Gdx.app.error("GameManager", "Cannot submit score: Player is not registered!");
+            Gdx.app.error("GameManager", "Cannot submit score, Player ID is null");
             return;
         }
 
-        int distanceScore = scoreManager.getScore();
-        int finalScore = distanceScore + (coinsCollected * 10);
+        int distance = scoreManager.getScore();
+        int finalScore = distance + (coinsCollected * 10);
 
-        backendService.submitScore(currentPlayerId, finalScore, coinsCollected, distanceScore,
-            new BackendService.RequestCallback() {
-
-                @Override
-                public void onSuccess(String response) {
-                    Gdx.app.log("GameManager", "Score submitted successfully: " + response);
-                }
-
-                @Override
-                public void onError(String error) {
-                    Gdx.app.error("GameManager", "Score submission failed: " + error);
-                }
+        backendService.submitScore(currentPlayerId, finalScore, coinsCollected, distance, new BackendService.RequestCallback() {
+            @Override
+            public void onSuccess(String response) {
+                Gdx.app.log("GameManager", "Score Submitted Successfully");
             }
-        );
+
+            @Override
+            public void onError(String error) {
+                Gdx.app.error("GameManager", "Score Submission Failed: " + error);
+            }
+        });
     }
 
     public void addCoin() {
@@ -105,9 +87,25 @@ public class GameManager {
         Gdx.app.log("GameManager", "COIN COLLECTED! Total: " + coinsCollected);
     }
 
+    public void setScore(int newScore) {
+        if (gameActive) {
+            scoreManager.setScore(newScore);
+        }
+    }
 
+    public int getScore() {
+        return scoreManager.getScore();
+    }
 
     public int getCoins() {
         return coinsCollected;
+    }
+
+    public void addObserver(Observer observer) {
+        scoreManager.addObserver(observer);
+    }
+
+    public void removeObserver(Observer observer) {
+        scoreManager.removeObserver(observer);
     }
 }

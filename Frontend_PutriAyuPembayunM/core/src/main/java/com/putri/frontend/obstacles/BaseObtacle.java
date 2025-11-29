@@ -1,5 +1,6 @@
 package com.putri.frontend.obstacles;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -26,6 +27,9 @@ public abstract class BaseObtacle {
     public void render(ShapeRenderer shapeRenderer) {
         if (!active) return;
         drawShape(shapeRenderer);
+    }
+
+    public void render(SpriteBatch batch) {
     }
 
     public boolean isColliding(Rectangle playerCollider) {

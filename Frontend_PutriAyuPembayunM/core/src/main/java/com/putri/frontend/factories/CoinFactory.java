@@ -4,27 +4,19 @@ import com.badlogic.gdx.utils.Array;
 import com.putri.frontend.Coin;
 import com.putri.frontend.pools.CoinPool;
 
-
-import java.util.Random;
-
 public class CoinFactory {
-    private CoinPool coinPool;
-    private Random random;
+    public final CoinPool coinPool;
     private Array<Coin> activeCoins;
 
     public CoinFactory() {
         coinPool = new CoinPool();
         activeCoins = new Array<>();
-        random = new Random();
     }
 
-    public void createCoinPattern(float spawnX, float groundTopY) {
-        if (random.nextFloat() < 0.3f) {
-            for (int i = 0; i < 3; i++) {
-                Coin coin = coinPool.obtain(spawnX + (i * 40), groundTopY + 50);
-                activeCoins.add(coin);
-            }
-        }
+    public Coin spawnCoin(float x, float y) {
+        Coin coin = coinPool.obtain(x, y);
+        activeCoins.add(coin);
+        return coin;
     }
 
     public Array<Coin> getActiveCoins() {
@@ -33,12 +25,12 @@ public class CoinFactory {
 
     public void releaseCoin(Coin coin) {
         activeCoins.removeValue(coin, true);
-        coin.setActive(false);
+        coinPool.free(coin);
     }
 
     public void releaseAll() {
         for (Coin coin : activeCoins) {
-            coinPool.release(coin);
+            coinPool.free(coin);
         }
         activeCoins.clear();
     }

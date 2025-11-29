@@ -1,5 +1,9 @@
 package com.putri.frontend.obstacles;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -11,10 +15,14 @@ public class HomingMissile extends BaseObtacle {
     private float speed = 200f;
     private float width = 40f;
     private float height = 20f;
+    private TextureRegion texture;
+    private float rotation = 0f;
 
     public HomingMissile(Vector2 startPosition) {
         super(startPosition, 20);
         this.velocity = new Vector2();
+        Texture img = new Texture(Gdx.files.internal("missile.png"));
+        texture = new TextureRegion(img);
     }
 
     @Override
@@ -29,9 +37,7 @@ public class HomingMissile extends BaseObtacle {
 
     public boolean isTargetingPlayer() {
         if (target == null) return false;
-        float playerCenterX = target.getPosition().x + target.getWidth() / 2f;
-        float missileCenterX = position.x + width / 2f;
-        return playerCenterX <= missileCenterX;
+        return (target.getPosition().x + target.getWidth() / 2f) <= (position.x + width / 2f);
     }
 
     public void update(float delta) {
@@ -42,7 +48,6 @@ public class HomingMissile extends BaseObtacle {
             velocity.set(targetPosition).sub(position).nor().scl(speed); // Mengatur velocity untuk mendekati player
         }
 
-        // Always move with current velocity
         position.add(velocity.x * delta, velocity.y * delta);
         updateCollider();
     }
@@ -60,5 +65,22 @@ public class HomingMissile extends BaseObtacle {
     @Override
     protected float getRenderWidth() {
         return width;
+    }
+
+    public void render(SpriteBatch batch) {
+        if (!active) return;
+
+        batch.draw(
+            texture,
+            position.x,
+            position.y,
+            width / 2,
+            height / 2,
+            width,
+            height,
+            1,
+            1,
+            rotation
+        );
     }
 }
